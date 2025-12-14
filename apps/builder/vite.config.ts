@@ -25,6 +25,9 @@ const conditions = hasPrivateFolders
   ? ["webstudio-private", "webstudio"]
   : ["webstudio"];
 
+// Skip Vercel preset for standard Node.js deployments
+const useVercelPreset = process.env.VERCEL === "1" || process.env.USE_VERCEL_PRESET === "1";
+
 export default defineConfig(({ mode }) => {
   if (mode === "development") {
     // Enable self-signed certificates for development service 2 service fetch calls.
@@ -35,7 +38,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       remix({
-        presets: [vercelPreset()],
+        presets: useVercelPreset ? [vercelPreset()] : [],
         future: {
           v3_lazyRouteDiscovery: false,
           v3_relativeSplatPath: false,
