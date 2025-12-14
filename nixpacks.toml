@@ -17,9 +17,8 @@ cmds = [
 cmds = [
     # Build all packages first (dependencies)
     "pnpm -r --filter='!./fixtures/*' --filter='!@webstudio-is/builder' build",
-    # Generate prisma client and apply migrations (requires DATABASE_URL env)
+    # Generate prisma client (migrations run at startup, not build time)
     "cd packages/prisma-client && pnpm generate",
-    "cd packages/prisma-client && export DIRECT_URL=${DIRECT_URL:-$DATABASE_URL} && pnpm migrations migrate --cwd .",
     # Build the builder app specifically
     "cd apps/builder && NODE_ENV=production pnpm build",
     # Verify build output
@@ -28,7 +27,7 @@ cmds = [
 ]
 
 [start]
-cmd = "cd apps/builder && npx remix-serve build/server/index.js"
+cmd = "cd packages/prisma-client && export DIRECT_URL=${DIRECT_URL:-$DATABASE_URL} && pnpm migrations migrate --cwd . && cd /app/apps/builder && npx remix-serve build/server/index.js"
 
 [variables]
 NODE_ENV = "production"
