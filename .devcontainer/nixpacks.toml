@@ -2,10 +2,11 @@
 # db and rest services are assumed to be already running
 
 [phases.setup]
-nixPkgs = ["nodejs_20", "pnpm", "openssl"]
+nixPkgs = ["nodejs_20", "openssl"]
 
 [phases.install]
 cmds = [
+    "npm install -g corepack@latest",
     "corepack enable",
     "corepack prepare pnpm@9.14.4 --activate",
     "pnpm config set store-dir /root/.pnpm-store",
