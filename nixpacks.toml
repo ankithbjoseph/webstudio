@@ -15,16 +15,15 @@ cmds = [
 
 [phases.build]
 cmds = [
-    "pnpm -r --filter='!./fixtures/*' build"
+    "pnpm -r --filter='!./fixtures/*' build",
+    "ls -la apps/builder/build/server || echo 'Build output not found'"
 ]
 
 [start]
-cmd = "pnpm --filter='@webstudio-is/builder' start"
+cmd = "cd apps/builder && pnpm start"
 
 [variables]
 NODE_ENV = "production"
 DOCKER_BUILDKIT = "1"
+CI = "true"
 
-# Database connection (assumes db service is running)
-# These can be overridden via environment variables
-DATABASE_URL = "postgresql://postgres:pass@db:5432/webstudio"
