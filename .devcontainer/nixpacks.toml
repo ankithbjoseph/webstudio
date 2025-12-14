@@ -1,0 +1,29 @@
+# Nixpacks configuration for building the webstudio app
+# db and rest services are assumed to be already running
+
+[phases.setup]
+nixPkgs = ["nodejs_20", "pnpm", "openssl"]
+
+[phases.install]
+cmds = [
+    "corepack enable",
+    "corepack prepare pnpm@9.14.4 --activate",
+    "pnpm config set store-dir /root/.pnpm-store",
+    "pnpm install --frozen-lockfile"
+]
+
+[phases.build]
+cmds = [
+    "pnpm -r --filter='!./fixtures/*' build"
+]
+
+[start]
+cmd = "pnpm --filter='@webstudio-is/builder' start"
+
+[variables]
+NODE_ENV = "production"
+DOCKER_BUILDKIT = "1"
+
+# Database connection (assumes db service is running)
+# These can be overridden via environment variables
+DATABASE_URL = "postgresql://postgres:pass@db:5432/webstudio"
