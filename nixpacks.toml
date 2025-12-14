@@ -19,7 +19,7 @@ cmds = [
     "pnpm -r --filter='!./fixtures/*' --filter='!@webstudio-is/builder' build",
     # Generate prisma client and apply migrations (requires DATABASE_URL env)
     "cd packages/prisma-client && pnpm generate",
-    "cd packages/prisma-client && pnpm migrations migrate --cwd .",
+    "cd packages/prisma-client && export DIRECT_URL=${DIRECT_URL:-$DATABASE_URL} && pnpm migrations migrate --cwd .",
     # Build the builder app specifically
     "cd apps/builder && NODE_ENV=production pnpm build",
     # Verify build output
