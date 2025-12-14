@@ -17,6 +17,8 @@ cmds = [
 cmds = [
     # Build all packages first (dependencies)
     "pnpm -r --filter='!./fixtures/*' --filter='!@webstudio-is/builder' build",
+    # Generate prisma client and apply migrations (requires DATABASE_URL env)
+    "pnpm --filter=@webstudio-is/prisma-client generate && pnpm --filter=./packages/prisma-client migrations migrate --cwd packages/prisma-client",
     # Build the builder app specifically
     "cd apps/builder && NODE_ENV=production pnpm build",
     # Verify build output
@@ -30,4 +32,18 @@ cmd = "cd apps/builder && npx remix-serve build/server/index.js"
 [variables]
 NODE_ENV = "production"
 CI = "true"
+
+# Required environment variables (set these in your deployment platform):
+# DEPLOYMENT_ENVIRONMENT = "production"
+# DEPLOYMENT_URL = "https://your-domain.com"
+# 
+# Database/PostgREST:
+# POSTGREST_URL = "http://your-postgrest-host:3000"
+# POSTGREST_API_KEY = "your-jwt-token"
+# DATABASE_URL = "postgresql://user:pass@host:5432/dbname"
+#
+# OAuth (GitHub):
+# GH_CLIENT_ID = "your-github-oauth-client-id"
+# GH_CLIENT_SECRET = "your-github-oauth-client-secret"
+# AUTH_SECRET = "your-auth-secret"
 
