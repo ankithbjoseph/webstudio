@@ -1,0 +1,56 @@
+# Stage 1: Install dependencies
+FROM node:20-alpine AS dependencies-env
+
+# Install pnpm
+RUN npm install -g pnpm@9.14.4
+
+WORKDIR /app
+
+# Copy package files for dependency installation
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/builder/package.json ./apps/builder/
+COPY packages/ ./packages/
+
+# Install all dependencies
+RUN pnpm install --frozen-lockfile
+
+# Stage 2: Build the application
+FROM dependencies-env AS build-env
+
+WORKDIR /app
+
+# Copy the rest of the source code
+COPY . .
+
+# Build all packages and the builder app
+RUN pnpm build
+
+# Stage 3: Production image
+FROM node:20-alpine AS production
+
+# Install pnpm for running the app
+RUN npm install -g pnpm@9.14.4
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/builder/package.json ./apps/builder/
+
+# Copy built packages
+COPY --from=build-env /app/packages ./packages
+COPY --from=build-env /app/apps/builder/build ./apps/builder/build
+COPY --from=build-env /app/apps/builder/public ./apps/builder/public
+COPY --from=build-env /app/node_modules ./node_modules
+COPY --from=build-env /app/apps/builder/node_modules ./apps/builder/node_modules
+
+# Set working directory to builder app
+WORKDIR /app/apps/builder
+
+# Expose the port Heroku will use
+# Heroku sets PORT dynamically, so we use $PORT
+ENV NODE_ENV=production
+
+# Start the application
+# Heroku requires the app to bind to $PORT
+CMD ["sh", "-c", "PORT=${PORT:-3000} npm run start"]

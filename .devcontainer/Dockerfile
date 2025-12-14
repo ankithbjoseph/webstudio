@@ -16,7 +16,6 @@ RUN npm install -g pnpm@9.0.2
 # RUN su node -c "npm install -g <your-package-list-here>"
 
 COPY library-scripts/*.sh /tmp/library-scripts/
-COPY postinstall.sh /tmp/library-scripts/
 
 ENV DOCKER_BUILDKIT=1
 RUN apt-get update && apt-get install -y dos2unix \
@@ -29,4 +28,4 @@ RUN set -eux; \
     done
 
 RUN /bin/bash /tmp/library-scripts/docker-in-docker-debian.sh
-RUN /bin/bash /tmp/library-scripts/postinstall.sh
+
