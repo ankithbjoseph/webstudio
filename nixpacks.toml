@@ -15,15 +15,19 @@ cmds = [
 
 [phases.build]
 cmds = [
-    "pnpm -r --filter='!./fixtures/*' build",
-    "ls -la apps/builder/build/server || echo 'Build output not found'"
+    # Build all packages first (dependencies)
+    "pnpm -r --filter='!./fixtures/*' --filter='!@webstudio-is/builder' build",
+    # Build the builder app specifically
+    "cd apps/builder && NODE_ENV=production pnpm build",
+    # Verify build output
+    "ls -la apps/builder/build/server/ || echo 'Server build not found'",
+    "ls -la apps/builder/build/client/ || echo 'Client build not found'"
 ]
 
 [start]
-cmd = "cd apps/builder && pnpm start"
+cmd = "cd apps/builder && NODE_ENV=production remix-serve build/server/index.js"
 
 [variables]
 NODE_ENV = "production"
-DOCKER_BUILDKIT = "1"
 CI = "true"
 
