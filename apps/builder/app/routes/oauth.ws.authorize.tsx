@@ -127,12 +127,21 @@ export const loader: LoaderFunction = async ({ request }) => {
       redirect_uri
     ).replace(/^http:/, "https:");
 
+    const expectedBuilderHost = new URL(
+      builderUrl({
+        projectId: "", // placeholder to compute host pattern
+        origin: authServerOrigin,
+      })
+    ).host.replace(/^p-/, "");
+
+    const redirectHost = new URL(redirect_uri).host.replace(/^p-/, "");
+
     debug(
-      `earlyRedirectCheck authServerOrigin=${authServerOrigin} redirectAuthServerOrigin=${redirectAuthServerOrigin} redirectPath=${new URL(redirect_uri).pathname} isBuilder=${isBuilderUrl(redirect_uri)}`
+      `earlyRedirectCheck authServerOrigin=${authServerOrigin} redirectAuthServerOrigin=${redirectAuthServerOrigin} expectedBuilderHost=${expectedBuilderHost} redirectHost=${redirectHost} redirectPath=${new URL(redirect_uri).pathname} isBuilder=${isBuilderUrl(redirect_uri)}`
     );
 
     if (
-      authServerOrigin !== redirectAuthServerOrigin ||
+      expectedBuilderHost !== redirectHost ||
       new URL(redirect_uri).pathname !== "/auth/ws/callback" ||
       false === isBuilderUrl(redirect_uri)
     ) {
@@ -199,25 +208,24 @@ export const loader: LoaderFunction = async ({ request }) => {
       // Normalize scheme: treat http p- builder origins as https
       // This avoids rejecting redirect_uri coming from an http builder host
       // (common in local/dev setups) while keeping strict host validation.
-      const redirectOriginNormalized = new URL(redirect_uri).origin.replace(
-        /^http:/,
-        "https:"
+      const redirectHostNormalized = new URL(redirect_uri).host.replace(
+        /^p-/,
+        ""
       );
 
-      const expectedBuilderOrigin = new URL(
+      const expectedBuilderHostForProject = new URL(
         builderUrl({
           projectId: oAuthParams.scope.projectId,
           origin: getAuthorizationServerOrigin(request.url),
         })
-      ).origin;
+      ).host.replace(/^p-/, "");
 
-
-
-      if (false === compareUrls(redirectOriginNormalized, expectedBuilderOrigin)) {
-        debug("redirect_uri does not match the registered redirect URIs");
-              debug(
-        `redirectOriginNormalized=${redirectOriginNormalized} expectedBuilderOrigin=${expectedBuilderOrigin}`
+      debug(
+        `redirectHostNormalized=${redirectHostNormalized} expectedBuilderHostForProject=${expectedBuilderHostForProject}`
       );
+
+      if (redirectHostNormalized !== expectedBuilderHostForProject) {
+        debug("redirect_uri does not match the registered redirect URIs");
 
         return json(
           {
