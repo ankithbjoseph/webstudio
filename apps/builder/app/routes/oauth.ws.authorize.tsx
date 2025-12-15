@@ -184,16 +184,22 @@ export const loader: LoaderFunction = async ({ request }) => {
       }
 
       // redirect_uri: Ensure the redirect_uri parameter value is valid and authorized
-      if (
-        false ===
-        compareUrls(
-          new URL(redirect_uri).origin,
-          builderUrl({
-            projectId: oAuthParams.scope.projectId,
-            origin: getAuthorizationServerOrigin(request.url),
-          })
-        )
-      ) {
+      // Normalize scheme: treat http p- builder origins as https
+      // This avoids rejecting redirect_uri coming from an http builder host
+      // (common in local/dev setups) while keeping strict host validation.
+      const redirectOriginNormalized = new URL(redirect_uri).origin.replace(
+        /^http:/,
+        "https:"
+      );
+
+      const expectedBuilderOrigin = new URL(
+        builderUrl({
+          projectId: oAuthParams.scope.projectId,
+          origin: getAuthorizationServerOrigin(request.url),
+        })
+      ).origin;
+
+      if (false === compareUrls(redirectOriginNormalized, expectedBuilderOrigin)) {
         debug("redirect_uri does not match the registered redirect URIs");
 
         return json(
