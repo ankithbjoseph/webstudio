@@ -118,9 +118,21 @@ export const loader: LoaderFunction = async ({ request }) => {
 
     // Validate the redirect_uri
     // It is not pre-registered but it must match the AuthorizationServerOrigin
+    // Normalize scheme to avoid rejecting http builder hosts in dev setups.
+    const authServerOrigin = getAuthorizationServerOrigin(request.url).replace(
+      /^http:/,
+      "https:"
+    );
+    const redirectAuthServerOrigin = getAuthorizationServerOrigin(
+      redirect_uri
+    ).replace(/^http:/, "https:");
+
+    debug(
+      `earlyRedirectCheck authServerOrigin=${authServerOrigin} redirectAuthServerOrigin=${redirectAuthServerOrigin} redirectPath=${new URL(redirect_uri).pathname} isBuilder=${isBuilderUrl(redirect_uri)}`
+    );
+
     if (
-      getAuthorizationServerOrigin(request.url) !==
-        getAuthorizationServerOrigin(redirect_uri) ||
+      authServerOrigin !== redirectAuthServerOrigin ||
       new URL(redirect_uri).pathname !== "/auth/ws/callback" ||
       false === isBuilderUrl(redirect_uri)
     ) {
