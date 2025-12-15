@@ -105,7 +105,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
       return json(
         {
-          error: "invalid_request",
+          error: "invalid_request1",
           error_description: "No redirect_uri provided",
           error_uri: "https://tools.ietf.org/html/rfc6749#section-3.1.2",
         },
@@ -149,7 +149,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
       return json(
         {
-          error: "invalid_request",
+          error: "invalid_request2",
           error_description:
             "The redirect_uri provided does not match the registered redirect URIs.",
           error_uri: "https://tools.ietf.org/html/rfc6749#section-3.1.2",
@@ -229,7 +229,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
         return json(
           {
-            error: "invalid_request",
+            error: "invalid_request3",
             error_description:
               "The redirect_uri provided does not match the registered redirect URIs.",
             error_uri: "https://tools.ietf.org/html/rfc6749#section-3.1.2",
