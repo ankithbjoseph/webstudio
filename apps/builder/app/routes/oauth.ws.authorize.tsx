@@ -199,12 +199,13 @@ export const loader: LoaderFunction = async ({ request }) => {
         })
       ).origin;
 
-      debug(
-        `redirectOriginNormalized=${redirectOriginNormalized} expectedBuilderOrigin=${expectedBuilderOrigin}`
-      );
+
 
       if (false === compareUrls(redirectOriginNormalized, expectedBuilderOrigin)) {
         debug("redirect_uri does not match the registered redirect URIs");
+              debug(
+        `redirectOriginNormalized=${redirectOriginNormalized} expectedBuilderOrigin=${expectedBuilderOrigin}`
+      );
 
         return json(
           {
