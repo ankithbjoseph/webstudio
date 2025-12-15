@@ -127,21 +127,12 @@ export const loader: LoaderFunction = async ({ request }) => {
       redirect_uri
     ).replace(/^http:/, "https:");
 
-    const expectedBuilderHost = new URL(
-      builderUrl({
-        projectId: "", // placeholder to compute host pattern
-        origin: authServerOrigin,
-      })
-    ).host.replace(/^p-/, "");
-
-    const redirectHost = new URL(redirect_uri).host.replace(/^p-/, "");
-
     debug(
-      `earlyRedirectCheck authServerOrigin=${authServerOrigin} redirectAuthServerOrigin=${redirectAuthServerOrigin} expectedBuilderHost=${expectedBuilderHost} redirectHost=${redirectHost} redirectPath=${new URL(redirect_uri).pathname} isBuilder=${isBuilderUrl(redirect_uri)}`
+      `earlyRedirectCheck authServerOrigin=${authServerOrigin} redirectAuthServerOrigin=${redirectAuthServerOrigin} redirectPath=${new URL(redirect_uri).pathname} isBuilder=${isBuilderUrl(redirect_uri)}`
     );
 
     if (
-      expectedBuilderHost !== redirectHost ||
+      authServerOrigin !== redirectAuthServerOrigin ||
       new URL(redirect_uri).pathname !== "/auth/ws/callback" ||
       false === isBuilderUrl(redirect_uri)
     ) {
